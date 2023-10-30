@@ -1,3 +1,5 @@
+let socket
+
 let normal_zombie
 let shiny_zombie
 let zombies = [];
@@ -7,12 +9,20 @@ let lastSpawnTime = 0;
 let lastShinySpawnTime = 0;
 
 //timer
-let count = 5;
+let count = 30;
 let countInterval = 1000;
 let lastCountUpdate = 0;
 
 //game status
 let isGameOver = false
+
+//Cursor and position
+let cursorX;
+let cursorY;
+let game_cursor;
+
+//score
+let score = 0;
 
 class Zombie{
   constructor(img, speed){
@@ -30,16 +40,27 @@ class Zombie{
     image(this.img, this.x, this.y, 50, 50);
   }
 }
+//-----------------------------------------Socket-------------------------------------//
 
 
+//-----------------------------------------Socket-------------------------------------//
 function preload() {
   normal_zombie = loadImage('./images/zombie-walking.png')
   shiny_zombie = loadImage('./images/shiny-walking.png')
+  game_cursor = loadImage('./images/mira.png')
 }
 
 function setup() {
   frameRate(60)
   createCanvas(400, 400);
+  cursor(game_cursor);
+  noCursor();
+/* 
+  socket = io.connect('http://localhost:3000');
+
+  socket.on('connect', () => {
+    console.log('User is connected');
+  }); */
 }
 
 function draw() {
@@ -53,17 +74,53 @@ function draw() {
   textSize(24);
   fill(0);
   text(`Tiempo restante: ${count} segundos`, 10, 30);
+  text(`Score: ${score}`,10, 50)
 
   if(count == 0){
     isGameOver = true
-    //esto hara que cuando se active el return PARA por completo el draw y todo lo que vaya despues
+    //esto hara que cuando se active algo similar a un return y PARA por completo el draw y todo lo que vaya despues
   }
+
+
+    //Crosshair code
+    cursorX = mouseX;
+    cursorY = mouseY;
+    fill(255,0,0  );
+    stroke(255, 100);
+    ellipse(cursorX, cursorY, 20, 20);
+
+
+    //kill zombies code
+    if (!isGameOver && mouseIsPressed) {
+      for (let i = zombies.length - 1; i >= 0; i--) {
+        const zombie = zombies[i];
+        const zombieX = zombie.x;
+        const zombieY = zombie.y;
+        const zombieSize = 30; // Tamaño del zombie
+  
+        // Verificar si se hizo clic en el zombie
+        if (
+          mouseX >= zombieX &&
+          mouseX <= zombieX + zombieSize &&
+          mouseY >= zombieY &&
+          mouseY <= zombieY + zombieSize
+        ) {
+          if(zombie.img === shiny_zombie){
+            score += 30;
+          }else{
+            score += 10;
+          }
+
+          zombies.splice(i, 1);
+        }
+      }
+    }
 
 
     //normal_zombie spaws
     if(!isGameOver && millis() - lastSpawnTime > spawnInterval){
-      let newZombie = new Zombie(normal_zombie, 3);
-      let newZombie2 = new Zombie(normal_zombie, 3);
+      let newZombie = new Zombie(normal_zombie, 2);
+      let newZombie2 = new Zombie(normal_zombie, 2);
       zombies.push(newZombie);
       zombies.push(newZombie2);
       lastSpawnTime = millis();
@@ -71,7 +128,7 @@ function draw() {
     
     //shiny_zombie spaws
   if(!isGameOver && millis() - lastShinySpawnTime > shinySpawnInterval){
-    let newShinyZombie = new Zombie(shiny_zombie, 6);
+    let newShinyZombie = new Zombie(shiny_zombie, 4);
     zombies.push(newShinyZombie);
     lastShinySpawnTime = millis();
   }
@@ -94,6 +151,7 @@ function draw() {
     fill(255);
     textAlign(CENTER, CENTER);
     text('Game Over', width / 2, height / 2 -20);
-    text(`Score: ${spawnInterval}`, width / 2, height / 2+20)
+    text(`Score: ${score}`, width / 2, height / 2+20)
   }
 }
+
