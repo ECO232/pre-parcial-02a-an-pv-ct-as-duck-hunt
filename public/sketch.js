@@ -1,10 +1,10 @@
-let socket
 
+let socket;
 let normal_zombie;
 let shiny_zombie;
 let back;
 let zombies = [];
-let spawnInterval = 1500; 
+let spawnInterval = 2000; 
 let shinySpawnInterval = 5000; 
 let lastSpawnTime = 0;
 let lastShinySpawnTime = 0;
@@ -58,12 +58,12 @@ function setup() {
   createCanvas(1490, 750);
   cursor(game_cursor);
   noCursor();
-/* 
+
   socket = io.connect('http://localhost:3000');
 
   socket.on('connect', () => {
     console.log('User is connected');
-  }); */
+  });
 }
 
 function draw() {
