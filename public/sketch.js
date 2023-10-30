@@ -1,12 +1,14 @@
 let socket
 
-let normal_zombie
-let shiny_zombie
+let normal_zombie;
+let shiny_zombie;
+let back;
 let zombies = [];
-let spawnInterval = 400; 
+let spawnInterval = 1500; 
 let shinySpawnInterval = 5000; 
 let lastSpawnTime = 0;
 let lastShinySpawnTime = 0;
+let positionY = [80, 200, 320, 440, 560];
 
 //timer
 let count = 30;
@@ -26,18 +28,18 @@ let score = 0;
 
 class Zombie{
   constructor(img, speed){
-    this.x = 0;
-    this.y = random(height);
+    this.x = 1400;
+    this.y = random(positionY);
     this.speed = speed;
     this.img = img;
   }
 
   update(){
-    this.x += this.speed;
+    this.x -= this.speed;
   }
 
   show(){
-    image(this.img, this.x, this.y, 50, 50);
+    image(this.img, this.x, this.y, 100, 140);
   }
 }
 //-----------------------------------------Socket-------------------------------------//
@@ -45,14 +47,15 @@ class Zombie{
 
 //-----------------------------------------Socket-------------------------------------//
 function preload() {
-  normal_zombie = loadImage('./images/zombie-walking.png')
-  shiny_zombie = loadImage('./images/shiny-walking.png')
-  game_cursor = loadImage('./images/mira.png')
+  normal_zombie = loadImage('./images/normal_zombie.png'); 
+  shiny_zombie = loadImage('./images/soccer_zombie.png');
+  game_cursor = loadImage('./images/mira.png');
+  back = loadImage('./images/back.png');
 }
 
 function setup() {
   frameRate(60)
-  createCanvas(400, 400);
+  createCanvas(1490, 750);
   cursor(game_cursor);
   noCursor();
 /* 
@@ -65,6 +68,8 @@ function setup() {
 
 function draw() {
   background(220);
+  image(back, 0, 0, 1490, 750 )
+  
 
   //timer
   if (!isGameOver && millis() - lastCountUpdate > countInterval && count > 0) {
@@ -73,8 +78,9 @@ function draw() {
   }
   textSize(24);
   fill(0);
-  text(`Tiempo restante: ${count} segundos`, 10, 30);
-  text(`Score: ${score}`,10, 50)
+  stroke(10);
+  text(`Time: ${count} `, 1100, 30);
+  text(`Score: ${score}`,1100, 70)
 
   if(count == 0){
     isGameOver = true
@@ -96,14 +102,15 @@ function draw() {
         const zombie = zombies[i];
         const zombieX = zombie.x;
         const zombieY = zombie.y;
-        const zombieSize = 30; // Tamaño del zombie
+        const zombieWidth = 100;  // Ancho del zombie
+        const zombieHeight = 140;// Tamaño del zombie
   
         // Verificar si se hizo clic en el zombie
         if (
           mouseX >= zombieX &&
-          mouseX <= zombieX + zombieSize &&
+          mouseX <= zombieX + zombieWidth &&
           mouseY >= zombieY &&
-          mouseY <= zombieY + zombieSize
+          mouseY <= zombieY + zombieHeight
         ) {
           if(zombie.img === shiny_zombie){
             score += 30;
@@ -119,10 +126,8 @@ function draw() {
 
     //normal_zombie spaws
     if(!isGameOver && millis() - lastSpawnTime > spawnInterval){
-      let newZombie = new Zombie(normal_zombie, 2);
-      let newZombie2 = new Zombie(normal_zombie, 2);
+      let newZombie = new Zombie(normal_zombie, 1);
       zombies.push(newZombie);
-      zombies.push(newZombie2);
       lastSpawnTime = millis();
     }
     
