@@ -46,7 +46,7 @@ class Zombie{
 
 class WeaponSight {
   constructor(img) {
-    this.x = 100;
+    this.x = 110;
     this.y = height / 2; // Iniciar en el medio de la pantalla
     this.speed = 4; // Ajusta esto según lo rápido que desees que se mueva la mira
     this.img = img;
@@ -60,15 +60,15 @@ class WeaponSight {
   }
 
   show() {
-    image(this.img, this.x, this.y, 80, 80); // Puedes ajustar el tamaño si es necesario
+    image(this.img, this.x, this.y, 50, 50); // Puedes ajustar el tamaño si es necesario
   }
 
   collides(zombie) {
     return (
-      this.x < zombie.x + 100 &&
-      this.x + 80 > zombie.x &&
-      this.y < zombie.y + 140 &&
-      this.y + 120 > zombie.y
+      this.x < zombie.x + 90 &&
+      this.x + 50 > zombie.x &&
+      this.y < zombie.y + 130 &&
+      this.y + 50 > zombie.y
     );
   }
 }
@@ -122,40 +122,13 @@ function draw() {
   }
 
 
-    //Crosshair code
+    /* //Crosshair code
     cursorX = mouseX;
     cursorY = mouseY;
     fill(255,0,0  );
     stroke(255, 100);
-    ellipse(cursorX, cursorY, 20, 20);
+    ellipse(cursorX, cursorY, 20, 20); */
 
-
-    //kill zombies code
-    if (!isGameOver && mouseIsPressed) {
-      for (let i = zombies.length - 1; i >= 0; i--) {
-        const zombie = zombies[i];
-        const zombieX = zombie.x;
-        const zombieY = zombie.y;
-        const zombieWidth = 100;  // Ancho del zombie
-        const zombieHeight = 140;// Tamaño del zombie
-  
-        // Verificar si se hizo clic en el zombie
-        if (
-          mouseX >= zombieX &&
-          mouseX <= zombieX + zombieWidth &&
-          mouseY >= zombieY &&
-          mouseY <= zombieY + zombieHeight
-        ) {
-          if(zombie.img === shiny_zombie){
-            score += 30;
-          }else{
-            score += 10;
-          }
-
-          zombies.splice(i, 1);
-        }
-      }
-    }
 
 
     //normal_zombie spaws
