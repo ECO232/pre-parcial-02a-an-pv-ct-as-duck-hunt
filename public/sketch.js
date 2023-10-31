@@ -4,11 +4,12 @@ let normal_zombie;
 let shiny_zombie;
 let back;
 let zombies = [];
-let spawnInterval = 2000; 
+let spawnInterval = 1000; 
 let shinySpawnInterval = 5000; 
 let lastSpawnTime = 0;
 let lastShinySpawnTime = 0;
 let positionY = [80, 200, 320, 440, 560];
+let weaponSight;
 
 //timer
 let count = 30;
@@ -42,6 +43,35 @@ class Zombie{
     image(this.img, this.x, this.y, 100, 140);
   }
 }
+
+class WeaponSight {
+  constructor(img) {
+    this.x = 100;
+    this.y = height / 2; // Iniciar en el medio de la pantalla
+    this.speed = 4; // Ajusta esto según lo rápido que desees que se mueva la mira
+    this.img = img;
+  }
+
+  update() {
+    this.y += this.speed;
+    if (this.y >= height - 100 || this.y <= 80) {
+      this.speed *= -1; // Invertir dirección cuando se llega al borde
+    }
+  }
+
+  show() {
+    image(this.img, this.x, this.y, 80, 80); // Puedes ajustar el tamaño si es necesario
+  }
+
+  collides(zombie) {
+    return (
+      this.x < zombie.x + 100 &&
+      this.x + 80 > zombie.x &&
+      this.y < zombie.y + 140 &&
+      this.y + 120 > zombie.y
+    );
+  }
+}
 //-----------------------------------------Socket-------------------------------------//
 
 
@@ -56,8 +86,9 @@ function preload() {
 function setup() {
   frameRate(60)
   createCanvas(1490, 750);
-  cursor(game_cursor);
   noCursor();
+  weaponSight = new WeaponSight(game_cursor);
+  
 
   socket = io.connect('http://localhost:3000');
 
@@ -69,6 +100,9 @@ function setup() {
 function draw() {
   background(220);
   image(back, 0, 0, 1490, 750 )
+
+  weaponSight.update();
+  weaponSight.show();
   
 
   //timer
@@ -144,6 +178,23 @@ function draw() {
 
     if (zombies[i].x < -50) {
       zombies.splice(i, 1); 
+    }
+  }
+
+  //zombie touched by weapon
+  if (!isGameOver && mouseIsPressed) {
+    for (let i = zombies.length - 1; i >= 0; i--) {
+      const zombie = zombies[i];
+      if (weaponSight.collides(zombie)) {
+        // Puntuación y eliminación del zombie si la mira colisiona con el zombie
+        if(zombie.img === shiny_zombie){
+          score += 30;
+        }else{
+          score += 10;
+        }
+  
+        zombies.splice(i, 1);
+      }
     }
   }
 
