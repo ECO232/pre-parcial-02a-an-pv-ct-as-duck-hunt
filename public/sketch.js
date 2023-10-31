@@ -26,6 +26,10 @@ let game_cursor;
 //score
 let score = 0;
 
+//arduino
+// Flag to track if the Arduino button is pressed
+let arduinoButtonPressed = false;
+
 class Zombie{
   constructor(img, speed){
     this.x = 1400;
@@ -58,12 +62,23 @@ function setup() {
   createCanvas(1490, 750);
   cursor(game_cursor);
   noCursor();
-/* 
-  socket = io.connect('http://localhost:3000');
 
-  socket.on('connect', () => {
-    console.log('User is connected');
-  }); */
+    // Inicializa la conexión con el servidor
+    socket = io.connect('http://localhost:3000');
+    socket.on('connect', () => {
+      console.log('User is connected');
+  
+    });
+
+    socket.on('arduinoData', (data) => {
+      console.log(data)
+      if (data === pinButton) {
+        arduinoButtonPressed = true; // Establecer el estado del botón de Arduino en verdadero cuando se detecta un disparo
+      }
+    });
+
+    
+    
 }
 
 function draw() {
@@ -97,30 +112,37 @@ function draw() {
 
 
     //kill zombies code
-    if (!isGameOver && mouseIsPressed) {
+    if (!isGameOver && (mouseIsPressed || arduinoButtonPressed)) {
       for (let i = zombies.length - 1; i >= 0; i--) {
         const zombie = zombies[i];
         const zombieX = zombie.x;
         const zombieY = zombie.y;
-        const zombieWidth = 100;  // Ancho del zombie
-        const zombieHeight = 140;// Tamaño del zombie
-  
-        // Verificar si se hizo clic en el zombie
+        const zombieWidth = 100;
+        const zombieHeight = 140;
+    
         if (
-          mouseX >= zombieX &&
-          mouseX <= zombieX + zombieWidth &&
-          mouseY >= zombieY &&
-          mouseY <= zombieY + zombieHeight
+          (mouseIsPressed &&
+            mouseX >= zombieX &&
+            mouseX <= zombieX + zombieWidth &&
+            mouseY >= zombieY &&
+            mouseY <= zombieY + zombieHeight) ||
+          (arduinoButtonPressed &&
+            cursorX >= zombieX &&
+            cursorX <= zombieX + zombieWidth &&
+            cursorY >= zombieY &&
+            cursorY <= zombieY + zombieHeight)
         ) {
-          if(zombie.img === shiny_zombie){
+          if (zombie.img === shiny_zombie) {
             score += 30;
-          }else{
+          } else {
             score += 10;
           }
-
+    
           zombies.splice(i, 1);
         }
       }
+    
+      arduinoButtonPressed = false; // Reiniciar el estado del botón de Arduino
     }
 
 
