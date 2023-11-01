@@ -154,8 +154,8 @@ function draw() {
     }
   }
 
-  //zombie touched by weapon
-  if (!isGameOver && mouseIsPressed) {
+  socket.on('shoot', () => {
+    // Aquí entra el código que se ejecuta cuando se recibe la señal de disparo
     for (let i = zombies.length - 1; i >= 0; i--) {
       const zombie = zombies[i];
       if (weaponSight.collides(zombie)) {
@@ -169,7 +169,7 @@ function draw() {
         zombies.splice(i, 1);
       }
     }
-  }
+  });
 
   //GameOver overlay
   if(isGameOver){
